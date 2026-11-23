@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Arcadestr</title>
+  <desc id="desc">Arcade cabinet with a cyan pixel A, amber controls, and three cyan network nodes on a circular network ring.</desc>
+  <defs>
+    <radialGradient id="background" cx="51%" cy="49%" r="72%">
+      <stop offset="0" stop-color="#25003C"/>
+      <stop offset="0.68" stop-color="#210033"/>
+      <stop offset="1" stop-color="#150020"/>
+    </radialGradient>
+    <linearGradient id="cabinet" x1="314" y1="297" x2="726" y2="889" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4A096B"/>
+      <stop offset="0.50" stop-color="#47136F"/>
+      <stop offset="1" stop-color="#390852"/>
+    </linearGradient>
+    <linearGradient id="front" x1="500" y1="764" x2="500" y2="884" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4D0B76"/>
+      <stop offset="1" stop-color="#361052"/>
+    </linearGradient>
+    <linearGradient id="controlPanel" x1="400" y1="646" x2="624" y2="764" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#611A9B"/>
+      <stop offset="1" stop-color="#511380"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="510" y1="422" x2="510" y2="614" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#150020"/>
+      <stop offset="1" stop-color="#1B002C"/>
+    </linearGradient>
+    <linearGradient id="marquee" x1="507" y1="318" x2="507" y2="381" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFC33B"/>
+      <stop offset="1" stop-color="#F7AF13"/>
+    </linearGradient>
+    <linearGradient id="node" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#10DEE9"/>
+      <stop offset="1" stop-color="#02C9D8"/>
+    </linearGradient>
+    <linearGradient id="white" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F9F4FF"/>
+      <stop offset="1" stop-color="#E7E0F8"/>
+    </linearGradient>
+    <clipPath id="badge"><rect width="1024" height="1024" rx="181"/></clipPath>
+  </defs>
+
+  <!-- The badge has real transparency beyond its rounded-square edges. -->
+  <g clip-path="url(#badge)">
+    <rect width="1024" height="1024" fill="url(#background)"/>
+
+    <!-- Network ring sits behind the cabinet. -->
+    <circle cx="510" cy="521" r="372" fill="none" stroke="#0CE2E9" stroke-width="25"/>
+
+    <!-- Continuous cabinet silhouette, using the actual proportions of the master illustration. -->
+    <path d="M323 273 H695 Q711 273 716 289 L738 368 Q742 382 736 393 L706 442 L734 640 L765 706 Q777 733 765 753 L741 786 L726 882 Q722 904 703 904 H313 Q294 904 290 886 L276 790 L253 755 Q241 735 250 710 L281 646 L310 437 L284 395 Q277 384 282 370 L302 289 Q307 273 323 273 Z" fill="url(#cabinet)"/>
+
+    <!-- Lower front face, behind its frame. -->
+    <path d="M288 769 H729 L711 882 H310 Z" fill="url(#front)"/>
+
+    <!-- Purple sloping control surface. -->
+    <path d="M326 654 H690 L749 724 Q756 742 743 750 H275 Q262 744 270 726 Z" fill="url(#controlPanel)"/>
+
+    <!-- Pale cabinet border: outer rim, upper inset and lower inset. -->
+    <path fill="url(#white)" fill-rule="evenodd" d="
+      M323 273 H695 Q711 273 716 289 L738 368 Q742 382 736 393 L706 442 L734 640 L765 706 Q777 733 765 753 L741 786 L726 882 Q722 904 703 904 H313 Q294 904 290 886 L276 790 L253 755 Q241 735 250 710 L281 646 L310 437 L284 395 Q277 384 282 370 L302 289 Q307 273 323 273 Z
+      M324 295 H691 Q698 295 700 303 L720 378 L685 438 L715 648 L749 722 Q755 738 744 747 Q741 750 734 750 H282 Q265 750 265 736 Q265 729 269 721 L301 653 L330 435 L298 379 L317 305 Q319 295 324 295 Z
+      M289 771 H725 L707 876 Q706 881 702 881 H315 Q309 881 307 875 L293 786 Z
+    "/>
+
+    <!-- Warm amber marquee. -->
+    <path d="M342 318 H680 L695 378 Q696 381 691 381 H329 Q324 381 325 377 Z" fill="url(#marquee)"/>
+
+    <!-- Deep, slightly trapezoidal screen with wide pale bezel. -->
+    <path d="M387 416 H637 Q659 416 663 438 L686 604 Q690 631 670 631 H350 Q329 631 332 608 L358 438 Q361 416 387 416 Z" fill="url(#white)"/>
+    <path d="M382 434 H637 Q643 434 646 443 L666 604 Q668 611 659 611 H353 Q348 611 350 605 L373 444 Q375 434 382 434 Z" fill="url(#screen)"/>
+
+    <!-- Pixel A on a uniform 21 px grid (7 x 6 cells). -->
+    <g fill="#00E5EB" shape-rendering="crispEdges"><rect x="479" y="459" width="21" height="21"/><rect x="500" y="459" width="21" height="21"/><rect x="521" y="459" width="21" height="21"/><rect x="458" y="480" width="21" height="21"/><rect x="479" y="480" width="21" height="21"/><rect x="500" y="480" width="21" height="21"/><rect x="521" y="480" width="21" height="21"/><rect x="542" y="480" width="21" height="21"/><rect x="458" y="501" width="21" height="21"/><rect x="479" y="501" width="21" height="21"/><rect x="521" y="501" width="21" height="21"/><rect x="542" y="501" width="21" height="21"/><rect x="437" y="522" width="21" height="21"/><rect x="458" y="522" width="21" height="21"/><rect x="479" y="522" width="21" height="21"/><rect x="500" y="522" width="21" height="21"/><rect x="521" y="522" width="21" height="21"/><rect x="542" y="522" width="21" height="21"/><rect x="563" y="522" width="21" height="21"/><rect x="437" y="543" width="21" height="21"/><rect x="458" y="543" width="21" height="21"/><rect x="542" y="543" width="21" height="21"/><rect x="563" y="543" width="21" height="21"/><rect x="437" y="564" width="21" height="21"/><rect x="458" y="564" width="21" height="21"/><rect x="542" y="564" width="21" height="21"/><rect x="563" y="564" width="21" height="21"/></g>
+
+    <!-- Joystick base, stem and knob (kept below the display). -->
+    <ellipse cx="407" cy="709" rx="37" ry="15" fill="#31004F" stroke="#F0E9FF" stroke-width="7"/>
+    <rect x="397" y="653" width="20" height="54" rx="8" fill="#EDE8FD" stroke="#2B0045" stroke-width="7"/>
+    <circle cx="407" cy="650" r="27" fill="#2C0047"/>
+    <circle cx="407" cy="650" r="21" fill="#FFBE26"/>
+
+    <!-- Two arcade buttons. -->
+    <ellipse cx="554" cy="691" rx="26" ry="15.5" fill="#FFBC20"/>
+    <ellipse cx="630" cy="691" rx="26" ry="15.5" fill="#FFBC20"/>
+
+    <!-- The three node rings cover the network arc. -->
+    <circle cx="510" cy="149" r="81" fill="url(#white)"/>
+    <circle cx="510" cy="149" r="61" fill="url(#node)"/>
+    <circle cx="170" cy="672" r="74" fill="url(#white)"/>
+    <circle cx="170" cy="672" r="53" fill="url(#node)"/>
+    <circle cx="850" cy="672" r="74" fill="url(#white)"/>
+    <circle cx="850" cy="672" r="53" fill="url(#node)"/>
+  </g>
+</svg>

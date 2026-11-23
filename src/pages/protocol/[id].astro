@@ -1,0 +1,47 @@
+---
+import Base from '../../layouts/Base.astro';
+import { render } from 'astro:content';
+import { getSpecs } from '../../lib/specs';
+
+export async function getStaticPaths() {
+  const specs = await getSpecs();
+  return specs.map((s) => ({ params: { id: s.id }, props: { spec: s, all: specs } }));
+}
+
+const { spec, all } = Astro.props;
+const { Content, headings } = await render(spec.entry);
+const toc = headings.filter((h) => h.depth === 2);
+---
+
+<Base title={spec.short} description={spec.summary || spec.title}>
+  <div class="mx-auto max-w-6xl px-5 pt-14 grid gap-12 lg:grid-cols-[13rem_1fr]">
+    <aside class="hidden lg:block">
+      <nav class="sticky top-24 space-y-8 text-sm" aria-label="Specs">
+        <div>
+          <p class="label mb-3">Specs</p>
+          <ul class="space-y-1.5 font-mono">
+            {all.map((s) => (
+              <li>
+                <a href={`/protocol/${s.id}/`} class:list={['hover:text-fg', s.id === spec.id ? 'text-amber' : 'text-muted']}>{s.short}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {toc.length > 0 && (
+          <div>
+            <p class="label mb-3">On this page</p>
+            <ul class="space-y-1.5">
+              {toc.map((h) => (
+                <li><a href={`#${h.slug}`} class="text-muted hover:text-cyan leading-snug block">{h.text}</a></li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </nav>
+    </aside>
+    <article class="prose-spec min-w-0 max-w-3xl">
+      <a href="/protocol/" class="label hover:text-fg">← All specs</a>
+      <div class="mt-6"><Content /></div>
+    </article>
+  </div>
+</Base>

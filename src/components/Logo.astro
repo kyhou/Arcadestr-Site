@@ -1,0 +1,6 @@
+---
+// The 24 and 32 px icons are pixel-aligned; render them only at their native size.
+interface Props { size?: 24 | 32; class?: string }
+const { size = 32, class: cls = '' } = Astro.props;
+---
+<img src={`/icons/arcadestr-icon-${size}.svg`} width={size} height={size} alt="" class={cls} />

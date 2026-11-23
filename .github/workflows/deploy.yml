@@ -1,0 +1,36 @@
+name: Deploy site
+
+# Rebuilds on site changes, on demand, and whenever the app repo dispatches
+# `app-released` (download links are resolved at build time).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  repository_dispatch:
+    types: [app-released]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          PUBLIC_GITHUB_REPO: ${{ vars.PUBLIC_GITHUB_REPO }}
+          PUBLIC_SOURCE_URL: ${{ vars.PUBLIC_SOURCE_URL }}
+          PUBLIC_NOSTR_NPUB: ${{ vars.PUBLIC_NOSTR_NPUB }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=arcadestr-site

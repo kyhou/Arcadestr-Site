@@ -1,0 +1,50 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getSpecs } from '../../lib/specs';
+import { specMeta } from '../../config';
+
+const specs = await getSpecs();
+// Before spec files are synced, still show what exists.
+const cards = specs.length
+  ? specs.map((s) => ({ id: s.id, short: s.short, title: s.title, summary: s.summary, href: `/protocol/${s.id}/` }))
+  : Object.entries(specMeta).map(([id, m]) => ({ id, short: m.short, title: '', summary: m.summary, href: null }));
+---
+
+<Base title="Protocol" description="The open protocols behind Arcadestr: ADP-01, NIP-102 and NIP-103.">
+  <section class="mx-auto max-w-4xl px-5 pt-20">
+    <p class="label">Protocol</p>
+    <h1 class="mt-3 text-4xl font-semibold tracking-tight">Open specs, any client</h1>
+    <p class="mt-5 text-muted leading-relaxed max-w-2xl">
+      Arcadestr implements these drafts, and nothing in them is specific to Arcadestr. Any client can verify a receipt, and any operator can run a distribution server.
+    </p>
+
+    <div class="mt-12 space-y-4">
+      {cards.map((c) => {
+        const inner = (
+          <>
+            <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <span class="font-mono font-semibold text-amber">{c.short}</span>
+              {c.title && <span class="text-dim text-sm">{c.title}</span>}
+            </div>
+            <p class="mt-2.5 text-muted leading-relaxed">{c.summary}</p>
+          </>
+        );
+        return c.href ? (
+          <a href={c.href} class="hud-frame block p-6 hover:bg-raised transition-colors">{inner}</a>
+        ) : (
+          <div class="hud-frame p-6 opacity-70">{inner}</div>
+        );
+      })}
+    </div>
+
+    <h2 class="mt-20 text-xl font-semibold">How the pieces fit</h2>
+    <pre class="mt-5 hud-frame p-5 font-mono text-[0.8rem] leading-relaxed text-muted overflow-x-auto"><span class="text-cyan">kind:30402</span>  listing      price · lud16 · file_hash · server tags        <span class="text-dim">(NIP-99 + ADP-01)</span>
+     │
+     ├─ paid ──▶ <span class="text-amber">kind:1020</span>  receipt   signed, encrypted to buyer   <span class="text-dim">(NIP-102)</span>
+     │
+     └─ free ──▶ <span class="text-amber">grant</span>      entitlement  promo · review · prize        <span class="text-dim">(NIP-103)</span>
+                       │
+                       ▼
+              <span class="text-cyan">ADP server</span>  verifies credential + server tag → streams build  <span class="text-dim">(ADP-01)</span></pre>
+  </section>
+</Base>

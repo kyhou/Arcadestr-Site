@@ -1,0 +1,197 @@
+---
+import Base from '../layouts/Base.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { specMeta } from '../config';
+import { getSpecs } from '../lib/specs';
+const available = new Set((await getSpecs()).map((s) => s.id));
+
+const trace = [
+  { k: 'listing', v: 'kind:30402 · Hollow Signal', s: 'signed by dev' },
+  { k: 'payment', v: '21,000 sats → studio@getalby.com', s: 'settled' },
+  { k: 'receipt', v: 'kind:1020 · encrypted to you', s: 'on 4 relays' },
+  { k: 'server', v: 'dist.hollowsignal.net', s: 'authorized' },
+  { k: 'archive', v: 'hollow-signal-linux-x86_64.tar.zst', s: 'sha256 ok' },
+];
+
+const steps = [
+  {
+    n: '01',
+    t: 'Find',
+    d: 'Developers publish games as signed Nostr listings. Arcadestr reads them from public relays. There is no catalog database to buy placement in.',
+  },
+  {
+    n: '02',
+    t: 'Pay',
+    d: 'Pay with Lightning from your own wallet. The payment goes straight to the Lightning address on the listing. Arcadestr never holds it.',
+  },
+  {
+    n: '03',
+    t: 'Own',
+    d: 'The developer signs a receipt, encrypts it to you, and publishes it to relays. Any server carrying the game accepts it, and the app checks the build hash before installing.',
+  },
+];
+
+const players = [
+  ['No account to lose', 'Sign in with your Nostr identity: a remote signer (NIP-46) or a local key encrypted on your machine. No email and no password reset.'],
+  ['Your library outlives us', 'Receipts live on open relays, not in our database. If Arcadestr disappeared tomorrow, your proof of purchase would still verify.'],
+  ['Verified installs', 'Every download is checked against the SHA-256 hash the developer signed. A file that doesn’t match is quarantined, never installed.'],
+  ['Free games, done properly', 'Free claims, review copies and giveaways are signed entitlement grants. They are as durable as a paid receipt.'],
+];
+
+const devs = [
+  ['Paid directly', 'Your Lightning address sits on your listing. Buyers pay you, and nothing passes through a platform wallet.'],
+  ['Choose your distribution', 'Host builds on your own ADP server (a Rust reference implementation is available) or with any compatible operator. List several mirrors for redundancy.'],
+  ['Scoped, cancellable keys', 'Delegate receipt signing to a fulfillment key limited to one game and specific capabilities. Cancel it at any time without touching your main identity.'],
+  ['Campaigns built in', 'Run launch-week free claims, timed access windows and review-key drops from the publisher studio.'],
+];
+
+const faq = [
+  ['What do I need to buy a game?', 'A Nostr identity and a Lightning wallet you can connect through Nostr Wallet Connect. Free games only need the identity.'],
+  ['Does Arcadestr hold my money or my keys?', 'No. Payments go from your wallet to the developer’s Lightning address. If you use a remote signer, your key never leaves it. If you use a local account, the key is encrypted on your device.'],
+  ['What happens to my games if Arcadestr shuts down?', 'Listings and receipts are ordinary Nostr events on public relays. Builds sit on servers the developer chose. Any client implementing the open protocols can verify your ownership and download from those servers.'],
+  ['Can I get a refund?', 'There is no central refund desk. Refunds are handled by the developer or their server operator, and a refund is recorded on the receipt’s status chain.'],
+  ['Which platforms are supported?', 'Linux and Windows at launch. macOS will come later.'],
+  ['Is there a web version?', 'Not yet. Installing and verifying games happens on your machine, so Arcadestr is a desktop app for now. A browser version for browsing and buying is planned.'],
+];
+---
+
+<Base>
+  <!-- HERO -->
+  <section class="relative overflow-hidden">
+    <div class="hud-grid absolute inset-0 -z-10" aria-hidden="true"></div>
+    <div class="mx-auto max-w-6xl px-5 pt-20 pb-24 grid gap-14 lg:grid-cols-[1.1fr_1fr] items-center">
+      <div>
+        <p class="label !text-cyan">Nostr · Lightning · Desktop</p>
+        <h1 class="mt-5 text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.05] tracking-tight">
+          Buy a game once.<br />
+          <span class="text-amber">Own it on the open network.</span>
+        </h1>
+        <p class="mt-6 max-w-xl text-lg text-muted leading-relaxed">
+          Arcadestr is a PC game store with no store owner. Developers sell directly, you pay with Lightning, and your proof of ownership is a signed receipt that no company can revoke.
+        </p>
+        <div class="mt-9 flex flex-wrap items-start gap-4">
+          <DownloadButton />
+          <a href="#how" class="btn btn-ghost text-base !px-6 !py-3.5">How it works</a>
+        </div>
+      </div>
+
+      <div class="hud-frame p-5 font-mono text-[0.8rem] shadow-2xl shadow-black/40" aria-label="Example purchase trace">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-line">
+          <span class="label">Purchase · trace</span>
+          <span class="flex items-center gap-2 text-ok text-xs"><span class="size-1.5 rounded-full bg-ok"></span>verified</span>
+        </div>
+        <ol class="space-y-2.5">
+          {trace.map((r) => (
+            <li class="grid grid-cols-[4.5rem_1fr] sm:grid-cols-[4.5rem_1fr_auto] gap-x-3 gap-y-0.5 items-baseline">
+              <span class="text-dim">{r.k}</span>
+              <span class="text-fg break-all sm:truncate">{r.v}</span>
+              <span class="text-ok whitespace-nowrap col-start-2 sm:col-start-auto">✓ {r.s}</span>
+            </li>
+          ))}
+        </ol>
+        <p class="mt-4 pt-3 border-t border-line text-amber cursor">ready to play</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section id="how" class="scroll-mt-16 border-t border-line">
+    <div class="mx-auto max-w-6xl px-5 py-24">
+      <p class="label">How it works</p>
+      <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight max-w-2xl">Three steps. No middleman in any of them.</h2>
+      <ol class="mt-14 grid gap-px bg-line md:grid-cols-3 border border-line">
+        {steps.map((s) => (
+          <li class="bg-bg p-7">
+            <span class="font-mono text-amber text-sm">{s.n}</span>
+            <h3 class="mt-3 text-xl font-semibold">{s.t}</h3>
+            <p class="mt-3 text-muted leading-relaxed">{s.d}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- PLAYERS / DEVS -->
+  <section class="border-t border-line bg-surface/40">
+    <div class="mx-auto max-w-6xl px-5 py-24 grid gap-16 lg:grid-cols-2">
+      <div id="players" class="scroll-mt-20">
+        <p class="label !text-cyan">For players</p>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight">A library that belongs to you.</h2>
+        <dl class="mt-10 space-y-7">
+          {players.map(([t, d]) => (
+            <div class="border-l-2 border-cyan/60 pl-5">
+              <dt class="font-semibold">{t}</dt>
+              <dd class="mt-1.5 text-muted leading-relaxed">{d}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+      <div id="developers" class="scroll-mt-20">
+        <p class="label !text-amber">For developers</p>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight">Sell without asking permission.</h2>
+        <dl class="mt-10 space-y-7">
+          {devs.map(([t, d]) => (
+            <div class="border-l-2 border-amber/60 pl-5">
+              <dt class="font-semibold">{t}</dt>
+              <dd class="mt-1.5 text-muted leading-relaxed">{d}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROTOCOL -->
+  <section class="border-t border-line">
+    <div class="mx-auto max-w-6xl px-5 py-24">
+      <div class="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <p class="label">Open protocols</p>
+          <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight max-w-2xl">Arcadestr is one client. The rules are public.</h2>
+        </div>
+        <a href="/protocol/" class="btn btn-ghost">Read the specs →</a>
+      </div>
+      <div class="mt-12 grid gap-5 md:grid-cols-3">
+        {['adp-01', 'nip-102', 'nip-103'].map((id) => (
+          <a href={available.has(id) ? `/protocol/${id}/` : '/protocol/'} class="hud-frame p-6 block group hover:bg-raised transition-colors">
+            <span class="font-mono text-amber font-semibold">{specMeta[id].short}</span>
+            <p class="mt-3 text-muted text-sm leading-relaxed">{specMeta[id].summary}</p>
+            <span class="mt-5 inline-block font-mono text-xs text-dim group-hover:text-cyan">read →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="scroll-mt-16 border-t border-line">
+    <div class="mx-auto max-w-3xl px-5 py-24">
+      <p class="label">FAQ</p>
+      <h2 class="mt-3 text-3xl font-semibold tracking-tight">Questions</h2>
+      <div class="mt-10 divide-y divide-line border-y border-line">
+        {faq.map(([q, a]) => (
+          <details class="group py-5">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden">
+              {q}
+              <span class="font-mono text-amber transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <p class="mt-3 text-muted leading-relaxed">{a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="mx-auto max-w-6xl px-5">
+    <div class="hud-frame px-8 py-14 text-center relative overflow-hidden">
+      <div class="hud-grid absolute inset-0" aria-hidden="true"></div>
+      <div class="relative">
+        <img src="/icons/arcadestr-icon.svg" width="112" height="112" alt="" class="mx-auto mb-6" />
+        <h2 class="text-3xl font-semibold tracking-tight">Start your library.</h2>
+        <p class="mt-3 text-muted">Free to install. Linux and Windows.</p>
+        <div class="mt-8 flex justify-center"><DownloadButton /></div>
+      </div>
+    </div>
+  </section>
+</Base>

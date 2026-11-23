@@ -1,0 +1,28 @@
+---
+import Logo from './Logo.astro';
+import { site } from '../config';
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-line mt-24">
+  <div class="mx-auto max-w-6xl px-5 py-10 grid gap-8 sm:grid-cols-[1fr_auto_auto] text-sm">
+    <div class="flex items-start gap-3">
+      <Logo size={24} class="mt-0.5" />
+      <div>
+        <p class="font-mono font-semibold">{site.name.toUpperCase()}</p>
+        <p class="text-dim mt-1 max-w-xs">{site.tagline}</p>
+      </div>
+    </div>
+    <ul class="space-y-2 font-mono text-muted">
+      <li><a class="hover:text-fg" href="/download/">Download</a></li>
+      <li><a class="hover:text-fg" href="/protocol/">Protocol specs</a></li>
+      <li><a class="hover:text-fg" href="/#faq">FAQ</a></li>
+    </ul>
+    <ul class="space-y-2 font-mono text-muted">
+      {site.sourceUrl && <li><a class="hover:text-fg" href={site.sourceUrl}>Source</a></li>}
+      {site.githubRepo && <li><a class="hover:text-fg" href={`https://github.com/${site.githubRepo}/releases`}>Releases</a></li>}
+      {site.nostrNpub && <li><a class="hover:text-fg" href={`https://njump.me/${site.nostrNpub}`}>Nostr</a></li>}
+    </ul>
+  </div>
+  <p class="mx-auto max-w-6xl px-5 pb-8 label">© {year} {site.name}</p>
+</footer>

@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { getLatestRelease, formatSize, type Os } from '../lib/releases';
+import { site } from '../config';
+
+const release = await getLatestRelease();
+const order: Os[] = ['linux', 'windows', 'macos'];
+const byOs = (os: Os) => (release?.assets ?? []).filter((a) => a.os === os).sort((a, b) => Number(b.primary) - Number(a.primary));
+const published = release ? new Date(release.publishedAt).toISOString().slice(0, 10) : null;
+---
+
+<Base title="Download" description="Download Arcadestr for Linux and Windows.">
+  <section class="mx-auto max-w-4xl px-5 pt-20">
+    <p class="label">Download</p>
+    <h1 class="mt-3 text-4xl font-semibold tracking-tight">Get Arcadestr</h1>
+    {release ? (
+      <p class="mt-4 text-muted font-mono text-sm">
+        v{release.version} · released {published} · <a class="text-cyan underline underline-offset-4" href={release.url}>release notes</a>
+      </p>
+    ) : (
+      <p class="mt-4 text-muted">The first public build hasn't been published yet. This page will list installers as soon as it is.</p>
+    )}
+    <div class="mt-8"><DownloadButton size="md" /></div>
+  </section>
+
+  <section class="mx-auto max-w-4xl px-5 mt-16 space-y-5">
+    {order.map((os) => {
+      const p = site.platforms[os];
+      const assets = byOs(os);
+      return (
+        <div class="hud-frame p-6" id={os}>
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="text-xl font-semibold">{p.label}</h2>
+            {p.status === 'later' && <span class="label !text-amber">Planned</span>}
+          </div>
+          {assets.length > 0 ? (
+            <ul class="mt-4 divide-y divide-line font-mono text-sm">
+              {assets.map((a) => (
+                <li class="flex flex-wrap items-center justify-between gap-3 py-3">
+                  <span>
+                    <span class:list={['inline-block w-20', a.primary ? 'text-amber' : 'text-muted']}>{a.kind}</span>
+                    <span class="text-dim break-all">{a.name}</span>
+                  </span>
+                  <a href={a.url} class="text-cyan hover:underline whitespace-nowrap">{formatSize(a.size)} ↓</a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="mt-3 text-muted text-sm">
+              {p.status === 'later' ? 'Not available yet. Linux and Windows come first.' : 'No build published yet.'}
+            </p>
+          )}
+        </div>
+      );
+    })}
+  </section>
+
+  <section class="mx-auto max-w-4xl px-5 mt-16">
+    <h2 class="text-xl font-semibold">Verify your download</h2>
+    <p class="mt-3 text-muted leading-relaxed">
+      Check the SHA-256 checksum before you run the installer.
+      {release?.checksums ? (
+        <>Checksums for this release: <a class="text-cyan underline underline-offset-4" href={release.checksums.url}>{release.checksums.name}</a>.</>
+      ) : (
+        <>Each release publishes a checksum file alongside the installers.</>
+      )}
+    </p>
+    <pre class="mt-4 hud-frame p-4 font-mono text-sm text-muted overflow-x-auto"><span class="text-dim"># Linux</span>
+sha256sum -c SHA256SUMS --ignore-missing
+
+<span class="text-dim"># Windows (PowerShell)</span>
+Get-FileHash .\Arcadestr_*_x64-setup.exe -Algorithm SHA256</pre>
+  </section>
+</Base>
