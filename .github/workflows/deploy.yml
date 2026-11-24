@@ -4,7 +4,7 @@ name: Deploy site
 # `app-released` (download links are resolved at build time).
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
   repository_dispatch:
     types: [app-released]
