@@ -4,7 +4,7 @@ export type Os = 'linux' | 'windows' | 'macos';
 
 export interface Asset {
   os: Os;
-  kind: string; // AppImage, deb, rpm, msi, exe, dmg
+  kind: string; // AppImage, deb, rpm, Arch, msi, exe, dmg
   name: string;
   url: string;
   size: number;
@@ -19,11 +19,12 @@ export interface Release {
   checksums?: { name: string; url: string };
 }
 
-// Tauri bundle naming. Updater artifacts (.sig, .tar.gz, .zip) are skipped.
+// Installer naming. Updater artifacts (.sig, .tar.gz, .zip) are skipped.
 const RULES: { re: RegExp; os: Os; kind: string; primary?: boolean }[] = [
   { re: /\.AppImage$/i, os: 'linux', kind: 'AppImage', primary: true },
   { re: /\.deb$/i, os: 'linux', kind: 'deb' },
   { re: /\.rpm$/i, os: 'linux', kind: 'rpm' },
+  { re: /\.pkg\.tar\.zst$/i, os: 'linux', kind: 'Arch' },
   { re: /-setup\.exe$/i, os: 'windows', kind: 'exe', primary: true },
   { re: /\.msi$/i, os: 'windows', kind: 'msi' },
   { re: /\.dmg$/i, os: 'macos', kind: 'dmg', primary: true },

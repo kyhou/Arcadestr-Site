@@ -27,7 +27,7 @@ Copy and taglines live in `src/pages/index.astro`. Site constants and spec summa
 
 `src/lib/releases.ts` fetches the latest GitHub release once per build and classifies the Tauri bundles:
 
-- Linux: AppImage (primary), deb, rpm
+- Linux: AppImage (primary when available), deb, rpm, Arch Linux (`.pkg.tar.zst`)
 - Windows: `-setup.exe` (primary), msi
 - macOS: dmg (planned)
 - Checksums: `SHA256SUMS`, `checksums.txt` or `*.sha256`

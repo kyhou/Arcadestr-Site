@@ -3,6 +3,7 @@
 {"name":"Arcadestr_0.1.0_amd64.AppImage.sig","browser_download_url":"https://example.invalid/x","size":400},
 {"name":"Arcadestr_0.1.0_amd64.deb","browser_download_url":"https://example.invalid/a.deb","size":12000000},
 {"name":"Arcadestr-0.1.0-1.x86_64.rpm","browser_download_url":"https://example.invalid/a.rpm","size":12000000},
+{"name":"arcadestr-0.1.0-1-x86_64.pkg.tar.zst","browser_download_url":"https://example.invalid/a.pkg.tar.zst","size":16000000},
 {"name":"Arcadestr_0.1.0_x64-setup.exe","browser_download_url":"https://example.invalid/a.exe","size":9000000},
 {"name":"Arcadestr_0.1.0_x64_en-US.msi","browser_download_url":"https://example.invalid/a.msi","size":10000000},
 {"name":"SHA256SUMS","browser_download_url":"https://example.invalid/SHA256SUMS","size":600},
