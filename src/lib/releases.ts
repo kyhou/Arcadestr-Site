@@ -137,3 +137,7 @@ async function load(): Promise<Release | null> {
 export function formatSize(bytes: number): string {
   return bytes >= 1e9 ? `${(bytes / 1e9).toFixed(1)} GB` : `${Math.round(bytes / 1e6)} MB`;
 }
+
+export function primaryByOs(assets: Asset[]): Partial<Record<Os, Asset>> {
+  return Object.fromEntries(assets.filter((asset) => asset.primary).map((asset) => [asset.os, asset]));
+}
