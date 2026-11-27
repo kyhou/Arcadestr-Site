@@ -9,14 +9,17 @@ export interface Asset {
   url: string;
   size: number;
   primary: boolean; // the one the big button should point at
+  sha256?: string;
 }
+
+type ChecksumFile = { name: string; url: string };
 
 export interface Release {
   version: string;
   publishedAt: string;
   url: string;
   assets: Asset[];
-  checksums?: { name: string; url: string };
+  checksums?: ChecksumFile;
 }
 
 // Installer naming. Updater artifacts (.sig, .tar.gz, .zip) are skipped.
@@ -31,6 +34,36 @@ const RULES: { re: RegExp; os: Os; kind: string; primary?: boolean }[] = [
 ];
 
 const CHECKSUMS = /^(SHA256SUMS(\.txt)?|checksums?\.txt|.*\.sha256)$/i;
+const MANIFEST = /^(SHA256SUMS(\.txt)?|checksums?\.txt)$/i;
+
+async function loadChecksums(file: ChecksumFile, assets: Asset[]) {
+  try {
+    const res = await fetch(file.url, { signal: AbortSignal.timeout(10_000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    const hashes = new Map<string, Set<string>>();
+    for (const line of text.split(/\r?\n/)) {
+      const entry = /^([a-f0-9]{64}) [ *](.+)$/i.exec(line);
+      if (!entry) continue;
+      const [, hash, filename] = entry;
+      const name = filename.replace(/^\.\//, '');
+      const values = hashes.get(name) ?? new Set<string>();
+      values.add(hash.toLowerCase());
+      hashes.set(name, values);
+    }
+
+    for (const asset of assets) {
+      const values = hashes.get(asset.name);
+      if (values?.size === 1) asset.sha256 = values.values().next().value;
+    }
+    // Some releases publish a bare hash in a file named after the installer.
+    if (assets.length === 1 && file.name === `${assets[0].name}.sha256` && /^[a-f0-9]{64}$/i.test(text.trim())) {
+      assets[0].sha256 = text.trim().toLowerCase();
+    }
+  } catch (e) {
+    console.warn(`[releases] Could not read ${file.name}:`, (e as Error).message);
+  }
+}
 
 let cached: Promise<Release | null> | undefined;
 
@@ -62,10 +95,10 @@ async function load(): Promise<Release | null> {
     const r = await fetchRaw();
     if (!r) return null;
     const assets: Asset[] = [];
-    let checksums: Release['checksums'];
+    const checksumFiles: ChecksumFile[] = [];
     for (const a of r.assets ?? []) {
       if (CHECKSUMS.test(a.name)) {
-        checksums ??= { name: a.name, url: a.browser_download_url };
+        checksumFiles.push({ name: a.name, url: a.browser_download_url });
         continue;
       }
       const rule = RULES.find((x) => x.re.test(a.name));
@@ -79,6 +112,15 @@ async function load(): Promise<Release | null> {
         primary: !!rule.primary,
       });
     }
+    const checksums = checksumFiles.find((file) => /^SHA256SUMS(\.txt)?$/i.test(file.name))
+      ?? checksumFiles.find((file) => MANIFEST.test(file.name))
+      ?? checksumFiles.find((file) => !assets.some((asset) => file.name === `${asset.name}.sha256`));
+    if (checksums) await loadChecksums(checksums, assets);
+    await Promise.all(assets.filter((asset) => !asset.sha256).map(async (asset) => {
+      const file = checksumFiles.find((file) => file.name === `${asset.name}.sha256`);
+      if (file) await loadChecksums(file, [asset]);
+    }));
+
     return {
       version: String(r.tag_name ?? '').replace(/^v/, ''),
       publishedAt: r.published_at,

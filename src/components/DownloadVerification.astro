@@ -1,0 +1,158 @@
+---
+import { site } from '../config';
+import type { Asset, Os, Release } from '../lib/releases';
+import { verificationCommand } from '../lib/verification';
+
+interface Props {
+  release: Release | null;
+  groups: { os: Os; assets: Asset[] }[];
+}
+
+const { release, groups } = Astro.props;
+const availableGroups = groups.filter(({ assets }) => assets.length > 0);
+const assets = groups.flatMap((group) => group.assets);
+const checksums = release?.checksums;
+---
+
+<section class="mx-auto max-w-4xl px-5 mt-16" aria-labelledby="verify-heading">
+  <h2 id="verify-heading" class="text-xl font-semibold">Verify your download</h2>
+  {assets.length > 0 ? (
+    <>
+      <p class="mt-3 text-muted leading-relaxed">
+        Check the SHA-256 checksum before installing. Use files from release
+        <a class="text-cyan underline underline-offset-4" href={release?.url}>v{release?.version}</a>.
+        {checksums && (
+          <>To verify from the release manifest, download <a class="text-cyan underline underline-offset-4" href={checksums.url}>{checksums.name}</a> and save it in the same directory as the installer.</>
+        )}
+      </p>
+
+      <div data-download-verification class="mt-4 space-y-3">
+        <label data-package-picker hidden>
+          <span class="block mb-2 text-sm font-semibold">Downloaded package</span>
+          <select class="hud-frame w-full bg-bg p-2 font-mono text-sm text-fg">
+            {availableGroups.map(({ os, assets }) => (
+              <optgroup label={site.platforms[os].label}>
+                {assets.map((asset) => <option value={asset.name}>{asset.name}</option>)}
+              </optgroup>
+            ))}
+          </select>
+        </label>
+        {assets.map((asset) => {
+          const command = verificationCommand(asset, checksums);
+          return (
+            <details class="hud-frame p-4" data-package={asset.name}>
+              <summary class="cursor-pointer break-all font-mono text-sm">{asset.name}</summary>
+              {asset.sha256 && (
+                <div class="mt-4">
+                  <p class="text-sm font-semibold">Expected SHA-256</p>
+                  <code class="break-all font-mono text-sm text-dim" data-sha256>{asset.sha256}</code>
+                  <button type="button" class="btn btn-ghost mt-2 text-sm" data-copy-hash hidden>Copy SHA-256</button>
+                  <p class="text-sm text-muted" role="status" data-copy-status></p>
+
+                  <div class="mt-4" data-local-verifier hidden>
+                    <label>
+                      <span class="block text-sm font-semibold">Verify in your browser</span>
+                      <span class="block text-sm text-muted">Choose the downloaded installer. The file stays on your device (up to 256 MiB).</span>
+                      <input type="file" class="mt-2 block max-w-full text-sm file:mr-2 file:cursor-pointer file:text-cyan" />
+                    </label>
+                    <p class="mt-2 text-sm text-muted" role="status" data-verification-status></p>
+                  </div>
+                </div>
+              )}
+              {command ? (
+                <>
+                  <p class="mt-4 text-sm text-muted">
+                    {asset.sha256 && 'The command below uses the checksum shown above and does not need a separate file. '}
+                    Open {asset.os === 'windows' ? 'PowerShell' : 'a terminal'} in the installer’s directory and run:
+                  </p>
+                  <pre class="mt-2 overflow-x-auto font-mono text-sm text-dim"><code>{command}</code></pre>
+                  {!asset.sha256 && (
+                    <p class="mt-2 text-sm text-muted">If the command does not report a match for this package, verification did not succeed.</p>
+                  )}
+                </>
+              ) : <p class="mt-4 text-sm text-muted">No SHA-256 checksum is available for this package.</p>}
+            </details>
+          );
+        })}
+      </div>
+
+      <p class="mt-4 text-sm text-muted">
+        <strong>OK / Verification successful:</strong> The file matches the published checksum.
+      </p>
+      <p class="mt-1 text-sm text-muted">
+        <strong>FAILED / Verification failed:</strong> Do not install the file. Download it again and repeat the check.
+      </p>
+    </>
+  ) : <p class="mt-3 text-muted">Verification instructions will be available when installers are published.</p>}
+  <p class="mt-3 text-sm text-muted">
+    A matching checksum verifies file integrity against the published reference. It does not establish publisher authenticity or guarantee the software is safe.
+  </p>
+</section>
+
+<script>
+  for (const verifier of document.querySelectorAll<HTMLElement>('[data-download-verification]')) {
+    const picker = verifier.querySelector<HTMLLabelElement>('[data-package-picker]')!;
+    const select = picker.querySelector('select')!;
+    const panels = verifier.querySelectorAll<HTMLDetailsElement>('[data-package]');
+    const showPackage = () => {
+      for (const panel of panels) {
+        const selected = panel.dataset.package === select.value;
+        panel.hidden = !selected;
+        panel.open = selected;
+      }
+    };
+    select.addEventListener('change', showPackage);
+    picker.hidden = false;
+    showPackage();
+
+    const fileInputs = verifier.querySelectorAll<HTMLInputElement>('input[type="file"]');
+    for (const panel of panels) {
+      const hash = panel.querySelector<HTMLElement>('[data-sha256]')?.textContent;
+      if (!hash) continue;
+
+      if (navigator.clipboard?.writeText) {
+        const copy = panel.querySelector<HTMLButtonElement>('[data-copy-hash]')!;
+        const status = panel.querySelector<HTMLElement>('[data-copy-status]')!;
+        copy.hidden = false;
+        copy.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(hash);
+            status.textContent = 'SHA-256 copied.';
+          } catch {
+            status.textContent = 'Could not copy automatically. Select the checksum to copy it.';
+          }
+        });
+      }
+
+      if (!globalThis.crypto?.subtle) continue;
+      const localVerifier = panel.querySelector<HTMLElement>('[data-local-verifier]')!;
+      const input = localVerifier.querySelector('input')!;
+      const status = localVerifier.querySelector<HTMLElement>('[data-verification-status]')!;
+      localVerifier.hidden = false;
+      input.addEventListener('change', async () => {
+        const file = input.files?.[0];
+        input.value = '';
+        status.textContent = '';
+        if (!file) return;
+        if (file.size > 256 * 1024 * 1024) {
+          status.textContent = 'This file is too large for browser verification. Use the terminal command below.';
+          return;
+        }
+
+        for (const fileInput of fileInputs) fileInput.disabled = true;
+        status.textContent = `Checking ${file.name}…`;
+        try {
+          const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
+          const actual = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+          status.textContent = actual === hash
+            ? `Verification successful: ${file.name} matches the published checksum.`
+            : `Verification failed: ${file.name} does not match the published checksum. Do not install it.`;
+        } catch {
+          status.textContent = 'Could not read or hash the file. Try again or use the terminal command below.';
+        } finally {
+          for (const fileInput of fileInputs) fileInput.disabled = false;
+        }
+      });
+    }
+  }
+</script>

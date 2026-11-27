@@ -4,7 +4,8 @@
 {"name":"Arcadestr_0.1.0_amd64.deb","browser_download_url":"https://example.invalid/a.deb","size":12000000},
 {"name":"Arcadestr-0.1.0-1.x86_64.rpm","browser_download_url":"https://example.invalid/a.rpm","size":12000000},
 {"name":"arcadestr-0.1.0-1-x86_64.pkg.tar.zst","browser_download_url":"https://example.invalid/a.pkg.tar.zst","size":16000000},
-{"name":"Arcadestr_0.1.0_x64-setup.exe","browser_download_url":"https://example.invalid/a.exe","size":9000000},
-{"name":"Arcadestr_0.1.0_x64_en-US.msi","browser_download_url":"https://example.invalid/a.msi","size":10000000},
-{"name":"SHA256SUMS","browser_download_url":"https://example.invalid/SHA256SUMS","size":600},
+{"name":"Arcadestr-0.1.0-windows-x86_64-setup.exe","browser_download_url":"https://example.invalid/a.exe","size":9000000},
+{"name":"Arcadestr-0.1.0-windows-x86_64.msi","browser_download_url":"https://example.invalid/a.msi","size":10000000},
+{"name":"Arcadestr-0.1.0-macos-arm64.dmg","browser_download_url":"https://example.invalid/a.dmg","size":10000000},
+{"name":"SHA256SUMS","browser_download_url":"data:text/plain,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855%20%20arcadestr-0.1.0-1-x86_64.pkg.tar.zst%0D%0Aba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad%20*Arcadestr-0.1.0-windows-x86_64-setup.exe%0D%0Aba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad%20%20./Arcadestr-0.1.0-macos-arm64.dmg%0D%0A","size":600},
 {"name":"latest.json","browser_download_url":"https://example.invalid/latest.json","size":900}]}
